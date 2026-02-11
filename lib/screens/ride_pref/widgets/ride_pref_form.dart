@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import '../widgets/location_picker.dart';
 import '../../../model/ride/locations.dart';
 import '../../../model/ride_pref/ride_pref.dart';
 import '../../../service/locations_service.dart';
@@ -15,9 +15,7 @@ import '../../../utils/date_time_util.dart';
 ///   - A number of seats
 ///
 /// The form can be created with an existing RidePref (optional).
-///
 class RidePrefForm extends StatefulWidget {
-  // The form can be created with an optional initial RidePref.
   final RidePref? initRidePref;
   final Function(RidePref)? onSearch;
 
@@ -26,7 +24,24 @@ class RidePrefForm extends StatefulWidget {
   @override
   State<RidePrefForm> createState() => _RidePrefFormState();
 }
-
+Future<Location?> _showLocationPicker(
+  BuildContext context,
+  String title,
+) async {
+  return showModalBottomSheet<Location>(
+    context: context,
+    isScrollControlled: true,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+    ),
+    builder: (context) => LocationPicker(
+      title: title,
+      onLocationSelected: (location) {
+        Navigator.pop(context, location);
+      },
+    ),
+  );
+}
 class _RidePrefFormState extends State<RidePrefForm> {
   Location? departure;
   late DateTime departureDate;
