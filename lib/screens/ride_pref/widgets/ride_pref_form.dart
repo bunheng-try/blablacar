@@ -116,7 +116,7 @@ class _RidePrefFormState extends State<RidePrefForm> {
         arrival: arrival!,
         requestedSeats: requestedSeats,
       );
-      RidePrefService.currentRidePref = ridePref;
+      widget.onSearch?.call(ridePref);
       if (widget.onSearch != null) {
         widget.onSearch!(ridePref);
       }
@@ -140,59 +140,6 @@ class _RidePrefFormState extends State<RidePrefForm> {
   bool _isFormValid() {
     return departure != null && arrival != null && departure != arrival;
   }
-
-  Future<Location?> _showLocationPicker(
-    BuildContext context,
-    String title,
-  ) async {
-    return showModalBottomSheet<Location>(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.7,
-        minChildSize: 0.5,
-        maxChildSize: 0.95,
-        expand: false,
-        builder: (context, scrollController) => Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(title, style: BlaTextStyles.heading),
-                ],
-              ),
-            ),
-            Expanded(
-              child: ListView.builder(
-                controller: scrollController,
-                itemCount: LocationsService.availableLocations.length,
-                itemBuilder: (context, index) {
-                  final location = LocationsService.availableLocations[index];
-                  return ListTile(
-                    leading: const Icon(Icons.location_on),
-                    title: Text(location.name),
-                    subtitle: Text(location.country.name),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => Navigator.pop(context, location),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   // ----------------------------------
   // Build the widgets
   // ----------------------------------
@@ -206,7 +153,7 @@ class _RidePrefFormState extends State<RidePrefForm> {
         children: [
           _buildLocationField(
             icon: Icons.radio_button_checked,
-            label: departure?.name ?? 'Toulouse',
+            label: departure?.name ?? 'Select departure',
             onTap: _onDepartureSelected,
           ),
           const SizedBox(height: BlaSpacings.s),
@@ -220,7 +167,7 @@ class _RidePrefFormState extends State<RidePrefForm> {
           const SizedBox(height: BlaSpacings.s),
           _buildLocationField(
             icon: Icons.location_on,
-            label: arrival?.name ?? 'Bordeaux, France',
+            label: arrival?.name ?? 'Select arrival',
             onTap: _onArrivalSelected,
           ),
           const SizedBox(height: BlaSpacings.m),
