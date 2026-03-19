@@ -1,3 +1,4 @@
+import 'package:blabla/data/dummy_data.dart';
 import 'package:blabla/model/ride_pref/ride_pref.dart';
 import 'package:blabla/services/ride_prefs_service.dart';
 import 'package:flutter/material.dart';
@@ -68,6 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
               BlaRidePreferencePicker(
                 initRidePreference: RidePrefsService.selectedPreference,
                 onRidePreferenceSelected: onRidePrefSelected,
+                availableLocations: fakeLocations,
               ),
               SizedBox(height: BlaSpacings.m),
 
