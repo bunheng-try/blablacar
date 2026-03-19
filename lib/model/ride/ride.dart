@@ -1,5 +1,4 @@
-
-import '../../utils/date_time_util.dart';
+import '../../utils/date_time_utils.dart';
 import '../user/user.dart';
 import 'locations.dart';
 
