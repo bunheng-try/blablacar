@@ -1,7 +1,6 @@
 import 'package:blabla/ui/widgets/buttons/bla_button.dart';
 import 'package:blabla/ui/widgets/display/bla_divider.dart';
 import 'package:flutter/material.dart';
-
 import '../../../../model/ride/locations.dart';
 import '../../../../model/ride_pref/ride_pref.dart';
 import '../../../../services/ride_prefs_service.dart';
@@ -14,7 +13,7 @@ import '../seat/bla_seat_picker.dart';
 
 ///
 /// A  RidePreference Picker is a view to pick a RidePreference:
-///   - A depcarture location
+///   - A departure location
 ///   - An arrival location
 ///   - A date
 ///   - A number of seats
@@ -26,9 +25,11 @@ class BlaRidePreferencePicker extends StatefulWidget {
     super.key,
     this.initRidePreference,
     required this.onRidePreferenceSelected,
+    required this.availableLocations, // required list of locations
   });
 
   final ValueChanged<RidePreference> onRidePreferenceSelected;
+  final List<Location> availableLocations;
 
   @override
   State<BlaRidePreferencePicker> createState() =>
@@ -51,7 +52,6 @@ class _BlaRidePreferencePickerState extends State<BlaRidePreferencePicker> {
   }
 
   @override
-  // TODO  - This kind of update should not be usefull with states watch () !!
   void didUpdateWidget(BlaRidePreferencePicker w) {
     super.didUpdateWidget(w);
     init();
@@ -64,7 +64,6 @@ class _BlaRidePreferencePickerState extends State<BlaRidePreferencePicker> {
       departureDate = widget.initRidePreference!.departureDate;
       requestedSeats = widget.initRidePreference!.requestedSeats;
     } else {
-      // If no given preferences, we select default ones :
       departure = null;
       departureDate = DateTime.now();
       arrival = null;
@@ -77,39 +76,36 @@ class _BlaRidePreferencePickerState extends State<BlaRidePreferencePicker> {
   // ----------------------------------
 
   void onDeparturePressed() async {
-    // 1- Select a location
     Location? selectedLocation = await Navigator.of(context).push<Location>(
       AnimationUtils.createBottomToTopRoute(
-        BlaLocationPicker(initLocation: departure),
+        BlaLocationPicker(
+          initLocation: departure,
+          availableLocations: widget.availableLocations,
+        ),
       ),
     );
 
-    // 2- Update the from if needed
     if (selectedLocation != null) {
-      setState(() {
-        departure = selectedLocation;
-      });
+      setState(() => departure = selectedLocation);
     }
   }
 
   void onArrivalPressed() async {
-    // 1- Select a arrival
     Location? selectedLocation = await Navigator.of(context).push<Location>(
       AnimationUtils.createBottomToTopRoute(
-        BlaLocationPicker(initLocation: arrival),
+        BlaLocationPicker(
+          initLocation: arrival,
+          availableLocations: widget.availableLocations,
+        ),
       ),
     );
 
-    // 2- Update the from if needed
     if (selectedLocation != null) {
-      setState(() {
-        arrival = selectedLocation;
-      });
+      setState(() => arrival = selectedLocation);
     }
   }
 
   void onSeatNumberPressed() async {
-    // 1- Select a arrival
     int? selectedSeatNumber = await Navigator.of(context).push<int>(
       AnimationUtils.createRightToLeftRoute(
         BlaSeatPicker(
@@ -119,11 +115,8 @@ class _BlaRidePreferencePickerState extends State<BlaRidePreferencePicker> {
       ),
     );
 
-    // 2- Update the from if needed
     if (selectedSeatNumber != null && selectedSeatNumber != requestedSeats) {
-      setState(() {
-        requestedSeats = selectedSeatNumber;
-      });
+      setState(() => requestedSeats = selectedSeatNumber);
     }
   }
 
@@ -131,12 +124,9 @@ class _BlaRidePreferencePickerState extends State<BlaRidePreferencePicker> {
     bool hasDeparture = departure != null;
     bool hasArrival = arrival != null;
 
-    // TODO - Seat + date
-
     bool preferenceIsValid = hasArrival && hasDeparture;
     if (!preferenceIsValid) return;
 
-    // Callback with the selected preference
     RidePreference newPreference = RidePreference(
       departure: departure!,
       departureDate: departureDate,
@@ -149,7 +139,6 @@ class _BlaRidePreferencePickerState extends State<BlaRidePreferencePicker> {
 
   void onSwappingLocationPressed() {
     setState(() {
-      // We switch only if both departure and arrivate are defined
       if (departure != null || arrival != null) {
         Location? temp = departure;
         departure = arrival != null ? Location.copy(arrival!) : null;
@@ -238,10 +227,8 @@ class RidePrefInput extends StatelessWidget {
   final VoidCallback onPressed;
   final IconData leftIcon;
 
-  // If true the text is displayed ligher
   final bool isPlaceHolder;
 
-  // A right button can be optionally provided
   final IconData? rightIcon;
   final VoidCallback? onRightIconPressed;
 
@@ -250,8 +237,8 @@ class RidePrefInput extends StatelessWidget {
     required this.title,
     required this.onPressed,
     required this.leftIcon,
-    this.rightIcon, //   optional
-    this.onRightIconPressed, //   optional
+    this.rightIcon,
+    this.onRightIconPressed,
     this.isPlaceHolder = false,
   });
 
